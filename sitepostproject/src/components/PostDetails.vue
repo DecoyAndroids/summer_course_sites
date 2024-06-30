@@ -30,18 +30,18 @@ export default {
                 if (this.i == this.idReal){ 
                     this.showTitle = this.listPost[this.i].title;
                     this.showText = this.listPost[this.i].body;
-                    console.log(this.idReal);
+
                 }               
             }else{ 
                 if (this.maxId > 100){              
                     if (this.i == parseInt(this.idReal)+parseInt((this.maxId - 101))){ 
-                        console.log(parseInt(this.idReal)+parseInt((this.maxId - 100)));
+
                         this.showTitle = this.listPost[this.i].title;
                         this.showText = this.listPost[this.i].body;
                     }
                 }else{
                     if (this.i == this.idReal-1){ 
-                        console.log(this.idReal);
+    
                         this.showTitle = this.listPost[this.i].title;
                         this.showText = this.listPost[this.i].body;
                     }    

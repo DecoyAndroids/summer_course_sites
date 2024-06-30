@@ -2,16 +2,25 @@
     <div>    
     <table>  
         <tr class="give-style" v-for="i in  dataresp" :key="i">
-            <RouterLink :to="{path:`/post/${i.id}`, query: { id: i.id}}">
-            <button>
-            <th> 
-                <div>
-                {{ i.title }} <br/>
-                {{ i.body.slice(0,10) +"..." }}
-                </div>     
-            </th>
-            </button>
-            </RouterLink>   
+            <h1  v-if="i.id == (this.delPostAr.find(({id}) => id == i.id))"> 
+                adsa
+            </h1>
+            <h2 v-else>
+                <RouterLink :to="{path:`/post/${i.id}`, query: { id: i.id}}">
+                <button>
+                    <th>
+                    <div>
+                    {{ i.title }} <br/>
+                    {{ i.body.slice(0,10) +"..." }}<br/> 
+                    <button @click="watcher(i.userId,i.id,i.title,i.body)">Delete post</button>
+                    </div>     
+                    </th>
+                </button>
+                </RouterLink>
+            </h2>
+            <br/>
+            
+              
         </tr>
     </table>
         
@@ -25,10 +34,11 @@ export default {
     data(){
         return{
             dataresp: Array,
-            maxIdpost:0
+            maxIdpost:0,
+            delPostAr:[]
         }
     },
-    props:{inputpost:Array}
+    props:{inputpost:Array,delPost:Array}
     ,
 
 
@@ -48,6 +58,19 @@ export default {
         }
         
     },
+    methods:{
+        watcher(userIdDel,idDel,titleId,bodyId){
+            this.delPostAr = this.delPost;
+            this.delPostAr.splice(0,0,{
+                "userId": userIdDel,
+                "id": idDel,
+                "title": titleId,
+                "body": bodyId
+            })           
+            console.log(this.delPostAr.find(({id}) => id == 1).id);
+
+        },
+    }
         
     
 }
