@@ -1,6 +1,6 @@
 <template>
   <header-component/>
-  <router-view @datatr="DataParc" @sendDataperc="GoToPostDetail" :inputpost = "inputdataparc" :listPost="listParc" :maxId="maxId" :delPost="delPost"/>
+  <router-view @datatr="DataParc" @sendDataperc="GoToPostDetail" @dataDel="dataDelSave" :inputpost = "inputdataparc" :listPost="listParc" :maxId="maxId" :delPostSave="delPost"/>
 </template>
 
 <script>
@@ -21,15 +21,13 @@ import headerComponent from "@/components/header.vue"
       idcode:100,
       listParc:[],
       maxId:0,
-      delPost:[{
-        "userId": 0,
-        "id": 1000000,
-        "title": "",
-        "body": ""
-      }] 
+      delPost:[] 
     }
   },
   methods:{
+    dataDelSave(willdel){
+      this.delPost=willdel;
+    },
     DataParc(UserId,Titl,Text){
       this.InputUsIdAp = UserId;
       this.InputTitlAp = Titl;

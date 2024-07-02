@@ -8,6 +8,7 @@
     </div>
 </template>
 <script>
+import axios from "axios"
 export default {
     name:"crpost-component",
     data(){
@@ -15,11 +16,34 @@ export default {
         InputUsId:0,
         InputTitl:'',
         InputText:'',  
+        maxId:0,
+        maxIdAr:[]
         }  
     },
+    async mounted(){
+        try{
+            const response = await axios.get('http://localhost:5078/api/Posts');
+            console.log(response.data)
+        }catch(error){
+            console.log('Axios error:',axios);
+        }
+    },
     methods:{
-        sendData(){
-            this.$emit('datatr',this.InputUsId,this.InputTitl,this.InputText);
+
+        async sendData(){
+            try{
+                const response = await axios.post('http://localhost:5078/api/Posts',{
+                    userId:this.InputUsId,
+                    id:111,
+                    title:this.InputTitl,
+                    body:this.InputText,
+                });
+                console.log(response);
+            }catch(error){
+                console.log('Axios error:', error);
+            }
+            
+
         }
 
     }

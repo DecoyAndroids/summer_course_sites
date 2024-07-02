@@ -2,22 +2,18 @@
     <div>    
     <table>  
         <tr class="give-style" v-for="i in  dataresp" :key="i">
-            <h1  v-if="i.id == (this.delPostAr.find(({id}) => id == i.id))"> 
-                adsa
-            </h1>
-            <h2 v-else>
-                <RouterLink :to="{path:`/post/${i.id}`, query: { id: i.id}}">
+                <RouterLink :to="{path:`/post/${i.id}`}">
                 <button>
                     <th>
                     <div>
                     {{ i.title }} <br/>
                     {{ i.body.slice(0,10) +"..." }}<br/> 
-                    <button @click="watcher(i.userId,i.id,i.title,i.body)">Delete post</button>
+                    <button @click="watcher(i.id)">Delete post</button>
                     </div>     
                     </th>
                 </button>
                 </RouterLink>
-            </h2>
+                
             <br/>
             
               
@@ -35,39 +31,30 @@ export default {
         return{
             dataresp: Array,
             maxIdpost:0,
-            delPostAr:[]
+            willdel:[],
+            i:{},
+            id:Number
         }
     },
-    props:{inputpost:Array,delPost:Array}
-    ,
 
 
 
    async mounted() {
         try{
-            const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
-            this.dataresp = response.data;
-            if (this.inputpost != null){
-                this.dataresp = this.inputpost.concat(this.dataresp);
-                this.maxIdpost = this.dataresp[0].id; 
-                this.$emit('sendDataperc',this.dataresp,this.maxIdpost);   
-            }
-           
+            this.willdel = this.delPostSave;
+            const response = await axios.get('http://localhost:5078/api/Posts');
+             
+            console.log(response.data);
+            
         }   catch(error){
             console.error('axios error:', error);
         }
         
     },
     methods:{
-        watcher(userIdDel,idDel,titleId,bodyId){
-            this.delPostAr = this.delPost;
-            this.delPostAr.splice(0,0,{
-                "userId": userIdDel,
-                "id": idDel,
-                "title": titleId,
-                "body": bodyId
-            })           
-            console.log(this.delPostAr.find(({id}) => id == 1).id);
+        watcher(){
+            this.willdel = this.delPostSave;
+            this.$emit('dataDel',this.willdel);      
 
         },
     }
