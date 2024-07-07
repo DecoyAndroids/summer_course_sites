@@ -1,6 +1,8 @@
 ﻿using liveCodingServer.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using System.Linq;
+using Microsoft.Extensions.Hosting;
 
 namespace liveCodingServer.Controllers;
 
@@ -29,7 +31,19 @@ public class PostsController : ControllerBase
         }
         string postsJson = System.IO.File.ReadAllText(FilePath);
         List<Post> posts = JsonSerializer.Deserialize<List<Post>>(postsJson, _options)!;
-        posts.Insert(0,post);
+        int MaxId = posts[0].id;
+        for (int i = 0; i < posts.Count; i++)
+        {
+            if (MaxId < posts[i].id)
+            {
+                MaxId = posts[i].id;
+            }
+        }
+        Console.WriteLine(MaxId);
+        post.id = MaxId + 1;
+        posts.Reverse();
+        posts.Add(post);
+        posts.Reverse();
         postsJson = JsonSerializer.Serialize(posts, _options);
         System.IO.File.WriteAllText(FilePath, postsJson);   
         return Ok(post);
@@ -52,8 +66,18 @@ public class PostsController : ControllerBase
     {
         string postsJson = System.IO.File.ReadAllText(FilePath);
         List<Post> posts = JsonSerializer.Deserialize<List<Post>>(postsJson, _options)!;
-        posts.Where(post => post.id != id);
-        return Ok(posts);
+        List<Post> postsFiltred = []; 
+        for (int i = 1; i < posts.Count;i++)
+        {
+            if (i != id)
+            {
+                postsFiltred.Add(posts[i]);
+                Console.WriteLine(i);
+            }
+        }
+        postsJson = JsonSerializer.Serialize(postsFiltred, _options);
+        System.IO.File.WriteAllText(FilePath, postsJson);
+        return Ok(postsFiltred);
     }
 }
   

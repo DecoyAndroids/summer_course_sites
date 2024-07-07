@@ -8,7 +8,7 @@
                     <div>
                     {{ i.title }} <br/>
                     {{ i.body.slice(0,10) +"..." }}<br/> 
-                    <button @click="watcher(i.id)">Delete post</button>
+                    <button @click="deleter(i.id)">Delete post</button>
                     </div>     
                     </th>
                 </button>
@@ -32,32 +32,31 @@ export default {
             dataresp: Array,
             maxIdpost:0,
             willdel:[],
-            i:{},
             id:Number
         }
     },
-
-
-
-   async mounted() {
-        try{
-            this.willdel = this.delPostSave;
-            const response = await axios.get('http://localhost:5078/api/Posts');
-             
-            console.log(response.data);
-            
-        }   catch(error){
-            console.error('axios error:', error);
-        }
-        
-    },
     methods:{
-        watcher(){
-            this.willdel = this.delPostSave;
-            this.$emit('dataDel',this.willdel);      
-
+        async fetchPost(){
+            try{
+                const response = await axios.get('http://localhost:5078/api/Posts');
+                this.dataresp = response.data;     
+            }   catch(error){
+            console.error('axios error:', error);
+            }
         },
-    }
+        async deleter(id){
+            const response = await axios.delete(`http://localhost:5078/api/Posts/${id}`);
+            console.log(response);
+        }
+    },
+    async beforeRouteEnter(to, from, next) {
+            next(async (vm) => {
+            await vm.fetchPost();
+        });
+    },
+    async mounted() {
+        await this.fetchPost();  
+    },
         
     
 }
