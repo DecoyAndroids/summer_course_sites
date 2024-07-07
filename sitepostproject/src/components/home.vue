@@ -2,16 +2,21 @@
     <div>    
     <table>  
         <tr class="give-style" v-for="i in  dataresp" :key="i">
-            <RouterLink :to="{path:`/post/${i.id}`, query: { id: i.id}}">
-            <button>
-            <th> 
-                <div>
-                {{ i.title }} <br/>
-                {{ i.body.slice(0,10) +"..." }}
-                </div>     
-            </th>
-            </button>
-            </RouterLink>   
+                <RouterLink :to="{path:`/post/${i.id}`}">
+                <button>
+                    <th>
+                    <div>
+                    {{ i.title }} <br/>
+                    {{ i.body.slice(0,10) +"..." }}<br/> 
+                    <button @click="deleter(i.id)">Delete post</button>
+                    </div>     
+                    </th>
+                </button>
+                </RouterLink>
+                
+            <br/>
+            
+              
         </tr>
     </table>
         
@@ -25,28 +30,32 @@ export default {
     data(){
         return{
             dataresp: Array,
-            maxIdpost:0
+            maxIdpost:0,
+            willdel:[],
+            id:Number
         }
     },
-    props:{inputpost:Array}
-    ,
-
-
-
-   async mounted() {
-        try{
-            const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
-            this.dataresp = response.data;
-            if (this.inputpost != null){
-                this.dataresp = this.inputpost.concat(this.dataresp);
-                this.maxIdpost = this.dataresp[0].id; 
-                this.$emit('sendDataperc',this.dataresp,this.maxIdpost);   
-            }
-           
-        }   catch(error){
+    methods:{
+        async fetchPost(){
+            try{
+                const response = await axios.get('http://localhost:5078/api/Posts');
+                this.dataresp = response.data;     
+            }   catch(error){
             console.error('axios error:', error);
+            }
+        },
+        async deleter(id){
+            const response = await axios.delete(`http://localhost:5078/api/Posts/${id}`);
+            console.log(response);
         }
-        
+    },
+    async beforeRouteEnter(to, from, next) {
+            next(async (vm) => {
+            await vm.fetchPost();
+        });
+    },
+    async mounted() {
+        await this.fetchPost();  
     },
         
     

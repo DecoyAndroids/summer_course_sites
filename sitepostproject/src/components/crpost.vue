@@ -3,11 +3,13 @@
         <input id="UsId" type="text" placeholder="Input your UserId" v-model="InputUsId"/>
         <input id="Titl" type="text" placeholder="Input title for post" v-model="InputTitl"/><br/>
         <input id="Text" type="text" placeHolder="Input text for post" v-model="InputText"/><br/>
-        <RouterLink to="/home"><button @click="sendData">Create post</button></RouterLink>
+        <RouterLink to="/home"><button @click="sendData">post</button></RouterLink>
         
     </div>
 </template>
 <script>
+import axios from "axios"
+
 export default {
     name:"crpost-component",
     data(){
@@ -15,11 +17,29 @@ export default {
         InputUsId:0,
         InputTitl:'',
         InputText:'',  
+        maxId:0,
+        maxIdAr:[]
         }  
     },
+
     methods:{
-        sendData(){
-            this.$emit('datatr',this.InputUsId,this.InputTitl,this.InputText);
+
+        async sendData(){
+            try{
+                const response = await axios.post('http://localhost:5078/api/Posts',{
+                    userId:this.InputUsId,
+                    id: 0,
+                    title:this.InputTitl,
+                    body:this.InputText,
+                });
+                console.log(response);
+                
+            }catch(error){
+                console.log('Axios error:', error);
+            }
+            
+            
+
         }
 
     }
