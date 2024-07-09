@@ -1,3 +1,8 @@
+using liveCodingServer.Data;
+using liveCodingServer.Interfaces;
+using liveCodingServer.Services;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -5,6 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("ApplicationDbContext")));
+
+builder.Services.AddTransient<IPostsRepository, PostsRepository>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",

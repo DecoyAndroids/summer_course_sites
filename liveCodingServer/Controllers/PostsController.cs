@@ -1,8 +1,9 @@
-﻿using liveCodingServer.Models;
+﻿using liveCodingServer.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Linq;
 using Microsoft.Extensions.Hosting;
+using liveCodingServer.Data.Models;
 
 namespace liveCodingServer.Controllers;
 
@@ -10,73 +11,53 @@ namespace liveCodingServer.Controllers;
 [Route("api/[controller]")]
 public class PostsController : ControllerBase
 {
-    const string FilePath = "posts.json";
-    private readonly JsonSerializerOptions _options = new() { WriteIndented = true, PropertyNameCaseInsensitive = true };
+    private readonly IPostsRepository _postsRepository;
+
+    public PostsController(IPostsRepository postsRepository)
+    {
+     _postsRepository = postsRepository; 
+    }
+    
     [HttpGet]
     public IActionResult Get()
     {
-        if (!System.IO.File.Exists(FilePath))
+        var posts = _postsRepository.GetAll();
+        if (!posts.Any())
         {
-            return NotFound();
-        }        
-        string posts = System.IO.File.ReadAllText(FilePath);
+            NotFound();
+        }
         return Ok(posts);
     }
-    [HttpPost]
-    public  IActionResult CreatePost([FromBody] Post post) 
+
+    [HttpGet("{id:Guid}")]
+    public IActionResult GetById(Guid id)
     {
-        if (!System.IO.File.Exists(FilePath))
+        var post = _postsRepository.GetById(id);
+        if (post is null)
         {
             return NotFound();
         }
-        string postsJson = System.IO.File.ReadAllText(FilePath);
-        List<Post> posts = JsonSerializer.Deserialize<List<Post>>(postsJson, _options)!;
-        int MaxId = posts[0].id;
-        for (int i = 0; i < posts.Count; i++)
-        {
-            if (MaxId < posts[i].id)
-            {
-                MaxId = posts[i].id;
-            }
-        }
-        Console.WriteLine(MaxId);
-        post.id = MaxId + 1;
-        posts.Reverse();
-        posts.Add(post);
-        posts.Reverse();
-        postsJson = JsonSerializer.Serialize(posts, _options);
-        System.IO.File.WriteAllText(FilePath, postsJson);   
         return Ok(post);
     }
 
-    [HttpGet("{id:int}")]
-    public IActionResult GetById(int id)
+    [HttpPost]
+    public async Task<IActionResult> CreatePost([FromBody] PostRequest post) 
     {
-        string postsJson = System.IO.File.ReadAllText(FilePath);
-        List<Post> posts = JsonSerializer.Deserialize<List<Post>>(postsJson, _options)!;
-        Post post = posts.SingleOrDefault(p => p.id == id);
-        if(post is null)
-        {
-            return NotFound();  
-        }
-        return Ok(post);
+        var newPost = await _postsRepository.AddAsync(post);
+        return Ok(newPost);
     }
-    [HttpDelete("{id:int}")]
-    public IActionResult DeletePost(int id)
+
+    [HttpPost("{id:Guid}")]
+    public async Task<IActionResult> UpdatePost([FromBody] PostRequest post, Guid id)
     {
-        string postsJson = System.IO.File.ReadAllText(FilePath);
-        List<Post> posts = JsonSerializer.Deserialize<List<Post>>(postsJson, _options)!;
-        List<Post> postsFiltred = []; 
-        for (int i = 1; i < posts.Count;i++)
-        {
-            if (i != id)
-            {
-                postsFiltred.Add(posts[i]);
-                Console.WriteLine(i);
-            }
-        }
-        postsJson = JsonSerializer.Serialize(postsFiltred, _options);
-        System.IO.File.WriteAllText(FilePath, postsJson);
+        var newPost = await _postsRepository.UpdateAsync(post, id);
+        return Ok(newPost);
+    }
+
+    [HttpDelete("{id:Guid}")]
+    public IActionResult DeletePost(Guid id)
+    {
+        var postsFiltred = _postsRepository.DeleteAsync(id);
         return Ok(postsFiltred);
     }
 }
